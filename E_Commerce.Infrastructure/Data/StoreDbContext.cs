@@ -1,0 +1,15 @@
+﻿using E_Commerce.Domain.Entities.Products;
+using Microsoft.EntityFrameworkCore;
+namespace E_Commerce.Infrastructure.Data
+{
+    internal class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContext(options) 
+    {
+        public DbSet<Product> products {  get; set; }
+        public DbSet<ProductPrand> ProductBrands {  get; set; }
+        public DbSet<ProductType>  ProductTypes {  get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreDbContext).Assembly);
+        }
+    }
+}
