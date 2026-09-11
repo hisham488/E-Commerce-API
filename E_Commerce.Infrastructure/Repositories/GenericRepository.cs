@@ -1,0 +1,45 @@
+﻿using E_Commerce.Domain.Commen;
+using E_Commerce.Domain.Contracts;
+using E_Commerce.Infrastructure.Data;
+using E_Commerce.Infrastructure.Specifications;
+using Microsoft.EntityFrameworkCore;
+
+namespace E_Commerce.Infrastructure.Repositories
+{
+    internal class GenericRepository<TEntity, Tkey>(StoreDbContext dbContext) :
+        IGenericRepository<TEntity, Tkey> where TEntity : BaseEntity<Tkey>
+    {
+        public void Add(TEntity entity)
+        {
+           dbContext.Set<TEntity>().Add(entity);
+        }
+        public async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken ct = default)
+        =>await dbContext.Set<TEntity>().ToListAsync(ct);
+
+        public async Task<IReadOnlyList<TEntity>> GetAllAsync(ISpecifications<TEntity, Tkey> spec, CancellationToken ct = default)
+        {
+            var query = SpecificationsEvaluator.CreatQuery(dbContext.Set<TEntity>(), spec);
+
+            return await query.ToListAsync(ct);
+        }
+
+        public async Task<TEntity?> GetByIdAsync(Tkey id, CancellationToken ct = default) 
+            => await dbContext.Set<TEntity>().FindAsync(id, ct);
+
+        public async Task<TEntity?> GetByIdAsync(ISpecifications<TEntity, Tkey> spec, CancellationToken ct = default)
+        {
+            var query= SpecificationsEvaluator.CreatQuery(dbContext.Set<TEntity>(), spec);
+            return await query.FirstOrDefaultAsync();
+
+        }
+
+        public void Remove(TEntity entity)
+        {
+            dbContext.Set<TEntity>().Remove(entity); 
+        }   
+        public void Update(TEntity entity)
+        {
+            dbContext.Set<TEntity>().Update(entity);
+        }
+    }
+}
